@@ -62,21 +62,7 @@ const OnlineRegistrationForm = () => {
   });
 
   const sendAddmissonData = async (sData: OnlineRegistrationFormSchemaType) => {
-    // await new Promise<void>((r) => setTimeout(r, 1800));
-
     try {
-      // const admissionData = {
-      //   ...sData,
-      //   dob: format(sData.dob, "dd/MM/yyyy"),
-      // };
-
-      // if (!sData.acceptTerms) {
-      //   return toast.add({
-      //     type: "error",
-      //     description: "Please Select Terms & Conditions",
-      //   });
-      // }
-
       const admissionData = {
         ...sData,
         fullName: sData.fullName,
@@ -94,7 +80,7 @@ const OnlineRegistrationForm = () => {
         acceptTerms: sData.acceptTerms,
       };
 
-      const response = await ky
+      const { message, success } = await ky
         .post("/api/admission", {
           json: admissionData,
         })
@@ -103,8 +89,8 @@ const OnlineRegistrationForm = () => {
           message: string;
         }>();
 
-      if (!response.success) {
-        throw new Error(response.message);
+      if (!success) {
+        throw new Error(message);
       }
 
       if (!admissionData) {
@@ -117,10 +103,8 @@ const OnlineRegistrationForm = () => {
           type: "success",
           description: "Registration Succefully Completed",
         });
-        console.log(admissionData);
 
         reset();
-        console.log(admissionData);
       }
     } catch (error) {
       toast.add({
@@ -138,7 +122,7 @@ const OnlineRegistrationForm = () => {
         {isSubmitSuccessful ?
           <div className="space-y-6 py-16 text-center">
             <div>
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold text-blue-600">
                 Registration Submitted Successfully
               </h2>
               <p className="text-muted-foreground mt-2">
@@ -173,8 +157,8 @@ const OnlineRegistrationForm = () => {
               </div>
             </div>
             <p className="text-muted-foreground text-sm">
-              Please keep your phone and WhatsApp numbers active so we can reach
-              you without any difficulty.
+              Please keep your phone and WhatsApp numbers active so our team can
+              reach you without any difficulty.
             </p>
           </div>
         : <form
