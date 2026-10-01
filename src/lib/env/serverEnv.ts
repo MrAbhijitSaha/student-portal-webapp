@@ -18,9 +18,9 @@ export const serverEnv = createEnv({
     GOOGLE_SCRIPT_URL: z
       .string()
       .startsWith("https://script.google.com", {
-        error: "DATABASE_URL must start with file:./",
+        error: "GOOGLE_SCRIPT_URL must start with https://script.google.com",
       })
-      .min(1, { error: "DATABASE_URL is required" }),
+      .min(1, { error: "GOOGLE_SCRIPT_URL is required" }),
   },
   experimental__runtimeEnv: process.env,
 });
