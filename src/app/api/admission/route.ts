@@ -1,4 +1,6 @@
 import { serverEnv } from "@/lib/env/serverEnv";
+import { admissionRateLimit } from "@/lib/rate-limit";
+import { onlineRegistrationFormSchema } from "@/lib/zodSchema";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
@@ -7,6 +9,20 @@ export async function POST(request: Request) {
     // Get form data
     const data = await request.json();
     // const admissionData = await request.json();
+
+    const parsed = onlineRegistrationFormSchema.safeParse(data);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid admission data.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const admissionData = parsed.data;
 
     const formData = new URLSearchParams();
     const { fullName, emailId } = data;
@@ -21,7 +37,37 @@ export async function POST(request: Request) {
       );
     }
 
-    Object.entries(data).forEach(([key, value]) => {
+    // Get client IP
+    const forwardedFor = request.headers.get("x-forwarded-for");
+
+    const ip =
+      forwardedFor?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    // Rate limit
+    const { success, reset } = await admissionRateLimit.limit(
+      `admission:${ip}`,
+    );
+
+    if (!success) {
+      const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many requests. Please try again later.",
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter),
+          },
+        },
+      );
+    }
+
+    Object.entries(admissionData).forEach(([key, value]) => {
       formData.append(key, String(value ?? ""));
     });
 

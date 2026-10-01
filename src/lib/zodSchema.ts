@@ -41,7 +41,10 @@ export const onlineRegistrationFormSchema = z.object({
     .trim()
     .length(10, { error: "Inavlid contact number" }),
 
-  Aadhaar: z.string().length(12, { error: "Inavlid aadhaar number" }),
+  Aadhaar: z
+    .string()
+    .trim()
+    .regex(/^\d{12}$/, { error: "Invalid aadhaar number" }),
   lastQualification: z
     .string()
     .min(2, { error: "Fill Your Last Qualification" }),
