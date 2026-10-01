@@ -4,12 +4,22 @@ import nodemailer from "nodemailer";
 
 export async function POST(request: Request) {
   try {
-    // 1. Get form data
+    // Get form data
     const data = await request.json();
     // const admissionData = await request.json();
 
     const formData = new URLSearchParams();
     const { fullName, emailId } = data;
+
+    if (!fullName || !emailId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Full name and email are required.",
+        },
+        { status: 400 },
+      );
+    }
 
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, String(value ?? ""));
@@ -28,17 +38,17 @@ export async function POST(request: Request) {
 
     console.log("Google Apps Script response:", result);
 
-    if (!fullName || !emailId) {
+    if (!response.ok) {
       return NextResponse.json(
         {
           success: false,
-          message: "Full name and email are required.",
+          message: "Admission submission failed.",
         },
-        { status: 400 },
+        { status: 502 },
       );
     }
 
-    // 4. Create Gmail transporter
+    //Create Gmail transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -47,12 +57,12 @@ export async function POST(request: Request) {
       },
     });
 
-    // 5. Verify Gmail connection
+    //Verify Gmail connection
     await transporter.verify();
 
     console.log("Gmail transporter is ready.");
 
-    // 7. Send email
+    //Send email
     const info = await transporter.sendMail({
       from: `"Admission Office" <${serverEnv.GMAIL_USER}>`,
       to: emailId,
