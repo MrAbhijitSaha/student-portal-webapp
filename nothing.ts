@@ -4,60 +4,39 @@ import nodemailer from "nodemailer";
 
 export async function POST(request: Request) {
   try {
-    const userFormData = await request.json();
+    // Get form data
+    const data = await request.json();
+    // const admissionData = await request.json();
 
-    const {
-      fullName,
-      fatherName,
-      gender,
-      dob,
-      emailId,
-      phoneNumber,
-      whatsappNumber,
-      Aadhaar,
-      lastQualification,
-      address,
-      course,
-      duration,
-      acceptTerms,
-    } = userFormData;
+    const formData = new URLSearchParams();
+    const { fullName, emailId } = data;
 
-    if (
-      !fullName ||
-      !emailId ||
-      !fatherName ||
-      !gender ||
-      !dob ||
-      !phoneNumber ||
-      !whatsappNumber ||
-      !Aadhaar ||
-      !address ||
-      !lastQualification ||
-      !course ||
-      !duration ||
-      !acceptTerms
-    ) {
+    if (!fullName || !emailId) {
       return NextResponse.json(
         {
           success: false,
-          message: "Please Fill all fields correctley.",
+          message: "Full name and email are required.",
         },
         { status: 400 },
       );
     }
 
-    console.log(userFormData);
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value ?? ""));
+    });
 
     const response = await fetch(serverEnv.GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify(userFormData),
+      body: formData.toString(),
       redirect: "follow",
     });
 
-    console.log(response);
+    const result = await response.text();
+
+    console.log("Google Apps Script response:", result);
 
     if (!response.ok) {
       return NextResponse.json(
@@ -69,6 +48,7 @@ export async function POST(request: Request) {
       );
     }
 
+    //Create Gmail transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -131,6 +111,9 @@ export async function POST(request: Request) {
       `,
     });
 
+    console.log("Email sent:", info.messageId);
+
+    // 8. Return success
     return NextResponse.json(
       {
         success: true,
@@ -139,7 +122,8 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error("Admission API Error:", error);
+
     return NextResponse.json(
       {
         success: false,

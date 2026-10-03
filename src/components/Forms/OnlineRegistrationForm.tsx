@@ -34,6 +34,7 @@ import { toast } from "../shadcnui/toast";
 
 const OnlineRegistrationForm = () => {
   const [open, setOpen] = useState(false);
+  const [formSubmit, setFormSubmit] = useState(false);
 
   const {
     handleSubmit,
@@ -93,15 +94,17 @@ const OnlineRegistrationForm = () => {
         throw new Error(message);
       }
 
+      setFormSubmit(true);
+
       if (!admissionData) {
         toast.add({
           type: "error",
-          description: "Somethin went wrong! please try again",
+          description: message,
         });
       } else {
         toast.add({
           type: "success",
-          description: "Registration Succefully Completed",
+          description: message,
         });
 
         reset();
@@ -109,7 +112,7 @@ const OnlineRegistrationForm = () => {
     } catch (error) {
       toast.add({
         type: "error",
-        description: "Somethin went wrong! please try again",
+        description: "message",
       });
 
       console.error(error);
@@ -119,7 +122,7 @@ const OnlineRegistrationForm = () => {
   return (
     <Card className="h-auto border-0 bg-white shadow-lg outline-none xl:min-h-200">
       <CardContent className="text-left">
-        {isSubmitSuccessful ?
+        {formSubmit ?
           <div className="space-y-6 py-16 text-center">
             <div>
               <h2 className="text-2xl font-bold text-blue-600">
