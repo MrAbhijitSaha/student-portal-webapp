@@ -29,3 +29,20 @@ export type CourseListType = {
   id: number;
   subject: string;
 };
+
+export type Admission = {
+  Timestamp: string;
+  "Full Name": string;
+  "Father Name": string;
+  Gender: string;
+  "Date of Birth": string;
+  Email: string;
+  Phone: string;
+  WhatsApp: string;
+  Aadhaar: string;
+  "Last Qualification": string;
+  Address: string;
+  Course: string;
+  Duration: string;
+  "Terms Accepted": boolean;
+};

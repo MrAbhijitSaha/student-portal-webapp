@@ -1,7 +1,9 @@
+import FetchData from "@/components/FetchData";
+
 const page = () => {
   return (
     <section className="grid h-dvh place-items-center">
-      certifiacte-verification
+      <FetchData />
     </section>
   );
 };

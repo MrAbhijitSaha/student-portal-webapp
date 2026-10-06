@@ -149,3 +149,24 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET() {
+  const response = await fetch(serverEnv.GOOGLE_SCRIPT_URL_READ, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to fetch admission data.",
+      },
+      { status: 502 },
+    );
+  }
+
+  const data = await response.json();
+
+  return NextResponse.json(data);
+}

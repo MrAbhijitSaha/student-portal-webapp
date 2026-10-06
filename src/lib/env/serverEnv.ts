@@ -21,6 +21,12 @@ export const serverEnv = createEnv({
         error: "GOOGLE_SCRIPT_URL must start with https://script.google.com",
       })
       .min(1, { error: "GOOGLE_SCRIPT_URL is required" }),
+    GOOGLE_SCRIPT_URL_READ: z
+      .string()
+      .startsWith("https://script.google.com", {
+        error: "GOOGLE_SCRIPT_URL must start with https://script.google.com",
+      })
+      .min(1, { error: "GOOGLE_SCRIPT_URL is required" }),
   },
   experimental__runtimeEnv: process.env,
 });
